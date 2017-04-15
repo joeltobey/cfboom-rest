@@ -46,7 +46,8 @@ component {
             "defaults" = {
             	"type" = "json",
             	"encoding" = "utf-8",
-            	"jsonQueryFormat" = "query"
+            	"jsonQueryFormat" = "query",
+            	"useEnvelope" = false
             }
         };
     }

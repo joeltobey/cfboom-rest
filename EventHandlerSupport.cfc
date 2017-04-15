@@ -66,8 +66,7 @@ component
 		// Use event data rendering
 		event.renderData(
 			type = prc.response.getType() == "gson" ? "plain" : prc.response.getType(),
-			data = findNoCase("json", prc.response.getType()) || prc.response.getType() == "gson"
-				? prc.response.getDataPacket() : prc.response.getData(),
+			data = listFindNoCase("json,gson", prc.response.getType()) ? prc.response.getDataPacket() : prc.response.getData(),
 			contentType = prc.response.getContentType(),
 			encoding = prc.response.getEncoding(),
 			statusCode = prc.response.getStatusCode(),
@@ -184,5 +183,6 @@ component
         arguments.response.setResponseTime( 0 );
         arguments.response.setCachedResponse( false );
         arguments.response.setHeaders( [] );
+        arguments.response.setUseEnvelope( settings.defaults.useEnvelope );
 	}
 }
