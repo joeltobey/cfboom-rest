@@ -33,20 +33,20 @@ component
     } catch (any ex) {
 
       // Log Locally
-      log.error( "Error calling #event.getCurrentEvent()#: #e.message# #e.detail#", e );
+      log.error( "Error calling #event.getCurrentEvent()#: #ex.message# #ex.detail#", ex );
 
       // Setup General Error Response
       prc.response
         .setError( true )
-        .setErrorCode( e.errorCode == 0 ? 500 : len( e.errorCode ) ? e.errorCode : 0 )
-        .addMessage( "General application error: #e.message#" )
+        .setErrorCode( ex.errorCode == 0 ? 500 : len( ex.errorCode ) ? ex.errorCode : 0 )
+        .addMessage( "General application error: #ex.message#" )
         .setStatusCode( 500 )
         .setStatusText( "General application error" );
 
       // Development additions
       if ( getSetting( "environment" ) == "development" ){
-        prc.response.addMessage( "Detail: #e.detail#" )
-                    .addMessage( "StackTrace: #e.stacktrace#" );
+        prc.response.addMessage( "Detail: #ex.detail#" )
+                    .addMessage( "StackTrace: #ex.stacktrace#" );
       }
     }
 
