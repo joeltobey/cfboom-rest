@@ -1,9 +1,8 @@
 component
   displayname="Class EventHandlerSupport"
-  accessors=true
   output=false
 {
-  property name="settings" inject="coldbox:modulesettings:cfboom-rest";
+  property name="responseInterceptor" inject="ResponseInterceptor@cfboomRest";
 
   /**
    * Around handler advice
@@ -13,23 +12,26 @@ component
       // start a resource timer
       var stime = getTickCount();
 
-      initResponse( argumentCollection:arguments );
+      validateRequest( argumentCollection=arguments );
 
-      var contentTypeArray = listToArray( event.getHTTPHeader("Content-Type"), ";" );
-      if ( arrayContains(contentTypeArray, "application/json") ) {
-        arguments.rc["_content"] = arguments.event.getHTTPContent(true);
+      if (!prc.response.getError()) {
+      	var contentTypeArray = listToArray( event.getHTTPHeader("Content-Type"), ";" );
+        if ( arrayContains(contentTypeArray, "application/json") ) {
+          arguments.rc["_content"] = arguments.event.getHTTPContent(true);
+        }
+
+        // prepare arguments for action call
+        var args = {
+          "event" = arguments.event,
+          "rc" = arguments.rc,
+          "prc" = arguments.prc
+        };
+        structAppend( args, arguments.eventArguments );
+
+        // execute the action now
+        arguments.targetAction( argumentCollection=args );
       }
 
-      // prepare arguments for action call
-      var args = {
-        "event" = arguments.event,
-        "rc" = arguments.rc,
-        "prc" = arguments.prc
-      };
-      structAppend( args, arguments.eventArguments );
-
-      // execute the action now
-      arguments.targetAction( argumentCollection=args );
     } catch (any ex) {
 
       // Log Locally
@@ -61,7 +63,7 @@ component
     // end timer
     prc.response.setResponseTime( getTickCount() - stime );
 
-    renderData( argumentCollection:arguments );
+    responseInterceptor.renderData( argumentCollection:arguments );
 
     // Global Response Headers
     prc.response.addHeader( "X-Response-Time", prc.response.getResponseTime() )
@@ -80,8 +82,6 @@ component
     // Log Locally
     log.error( "Error in base handler (#arguments.faultAction#): #arguments.exception.message# #arguments.exception.detail#", arguments.exception );
 
-    initResponse( argumentCollection:arguments );
-
     // Setup General Error Response
     prc.response
       .setError( true )
@@ -97,7 +97,7 @@ component
     }
 
 		// Render Error Out
-    renderData( argumentCollection:arguments );
+    responseInterceptor.renderData( argumentCollection:arguments );
   }
 
   /**
@@ -106,8 +106,6 @@ component
   function onInvalidHTTPMethod( event, rc, prc, faultAction, eventArguments ){
     // Log Locally
     log.warn( "InvalidHTTPMethod Execution of (#arguments.faultAction#): #event.getHTTPMethod()#", getHTTPRequestData() );
-
-    initResponse( argumentCollection:arguments );
 
     // Setup Response
     prc.response
@@ -118,65 +116,36 @@ component
       .setStatusText( "Invalid HTTP Method" );
 
     // Render Error Out
-    renderData( argumentCollection:arguments );
+    responseInterceptor.renderData( argumentCollection:arguments );
   }
 
-  private void function initResponse( event, targetAction, eventArguments, rc, prc ) {
-    if ( !structKeyExists( prc, "response" ) ) {
-      prc['response'] = getModel( "Response@cfboomRest" );
-      prc.response.setType( settings.defaults.type );
-      prc.response.setData( "" );
-      if (settings.defaults.type == "gson") {
-        prc.response.setContentType( "application/json" );
-      } else {
-        prc.response.setContentType( "" );
+  private void function validateRequest( event, targetAction, eventArguments, rc, prc ) {
+    var messages = [];
+    var meta = getMetaData(arguments.targetAction);
+    for (var param in meta.parameters) {
+      if (structKeyExists(param, "validation-required")) {
+        var requiredArray = listToArray( param['validation-required'] );
+        if (param.name == "rc") {
+          for (var requiredParam in requiredArray) {
+            if (!structKeyExists(rc, requiredParam))
+              arrayAppend(messages, "Missing required field '#requiredParam#'");
+          }
+        }
       }
-      prc.response.setEncoding( settings.defaults.encoding );
-      prc.response.setStatusCode( 200 );
-      prc.response.setStatusText( "OK" );
-      prc.response.setLocation( "" );
-      prc.response.setJsonCallBack( "" );
-      prc.response.setJsonQueryFormat( settings.defaults.jsonQueryFormat );
-      prc.response.setJsonAsText( false );
-      prc.response.setXmlColumnList( "" );
-      prc.response.setXmlUseCDATA( false );
-      prc.response.setXmlListDelimiter( "," );
-      prc.response.setXmlRootName( "" );
-      prc.response.setPdfArgs( {} );
-      prc.response.setFormats( "" );
-      prc.response.setFormatsView( "" );
-      prc.response.setBinary( false );
-      prc.response.setError( false );
-      prc.response.setMessages( [] );
-      prc.response.setErrorCode( 0 );
-      prc.response.setResponseTime( 0 );
-      prc.response.setCachedResponse( false );
-      prc.response.setHeaders( [] );
-      prc.response.setUseEnvelope( settings.defaults.useEnvelope );
+    }
+
+    // Set error if we have messages
+    if (arrayLen(messages)) {
+      prc.response
+        .setError( true )
+        .setErrorCode( 400 )
+        .setStatusCode( 400 )
+        .setStatusText( "Unauthorized" );
+
+      for (var msg in messages) {
+        prc.response.addMessage( msg );
+      }
     }
   }
 
-  private void function renderData( event, targetAction, eventArguments, rc, prc ) {
-    // Use event data rendering
-    event.renderData(
-      type = prc.response.getType() == "gson" ? "plain" : prc.response.getType(),
-      data = listFindNoCase("json,gson", prc.response.getType()) ? prc.response.getDataPacket() : prc.response.getData(),
-      contentType = prc.response.getContentType(),
-      encoding = prc.response.getEncoding(),
-      statusCode = prc.response.getStatusCode(),
-      statusText = prc.response.getStatusText(),
-      location = prc.response.getLocation(),
-      jsonCallback = prc.response.getJsonCallback(),
-      jsonQueryFormat = prc.response.getJsonQueryFormat(),
-      jsonAsText = prc.response.getJsonAsText(),
-      xmlColumnList = prc.response.getXmlColumnList(),
-      xmlUseCDATA = prc.response.getXmlUseCDATA(),
-      xmlListDelimiter = prc.response.getXmlListDelimiter(),
-      xmlRootName = prc.response.getXmlRootName(),
-      pdfArgs = prc.response.getPdfArgs(),
-      formats = prc.response.getFormats(),
-      formatsView = prc.response.getFormatsView(),
-      isBinary = prc.response.getBinary()
-    );
-  }
 }

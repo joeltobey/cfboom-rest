@@ -50,6 +50,9 @@ component {
             	"useEnvelope" = false
             }
         };
+
+        // Binder Mappings
+        binder.map("ResponseInterceptor@cfboomRest").to("#moduleMapping#.interceptors.ResponseInterceptor");
     }
 
     /**
