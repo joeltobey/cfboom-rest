@@ -31,6 +31,7 @@ component
     property name="cachedResponse" type="boolean";
     property name="headers" type="array";
     property name="useEnvelope" type="boolean";
+    property name="override" type="boolean";
 
     /**
      * Add some messages
@@ -59,7 +60,9 @@ component
      */
     function getDataPacket() {
         var returnObject = {};
-        if (type == "gson") {
+        if (getOverride()) {
+            returnObject = getData();
+        } else if (type == "gson") {
             var data = javaCast("null", "");
             if (find("com.google.gson", getData().getClass().getName())) {
                 data = getData();

@@ -1,7 +1,7 @@
 /**
  * Created by joeltobey on 4/14/17.
  */
-component
+component singleton
   displayname="Response Interceptor"
   output="false"
 {
@@ -67,6 +67,7 @@ component
       prc.response.setCachedResponse( false );
       prc.response.setHeaders( [] );
       prc.response.setUseEnvelope( settings.defaults.useEnvelope );
+      prc.response.setOverride( false );
     }
   }
 
