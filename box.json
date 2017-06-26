@@ -1,0 +1,42 @@
+{
+    "name":"<cfboom/> rest",
+    "version":"0.1.0",
+    "author":"Joel Tobey <joeltobey@gmail.com>",
+    "slug":"cfboom-rest",
+    "type":"modules",
+    "homepage":"https://github.com/joeltobey/cfboom-rest",
+    "documentation":"https://github.com/joeltobey/cfboom-rest/wiki",
+    "repository":{
+        "type":"git",
+        "url":"https://github.com/joeltobey/cfboom-rest"
+    },
+    "location": "https://github.com/joeltobey/cfboom-rest/releases/download/v0.1.0/cfboom-rest-v0.1.0.zip",
+    "shortDescription":"The cfboom-rest module provides a wrapper facade to the RESTful requests/responses",
+    "license":[
+        {
+            "type":"Apache2",
+            "url":"http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    ],
+    "contributors":[
+        "Joel Tobey <joeltobey@gmail.com>"
+    ],
+    "engines":[
+        {
+            "type":"lucee",
+            "version":">4.5"
+        },
+        {
+            "type":"adobe",
+            "version":">9.02"
+        }
+    ],
+    "dependencies":{
+        "cfboom-lang":"1.0.0"
+    },
+    "ignore":[
+        "**/.*",
+        "tests",
+        "*/.md"
+    ]
+}
