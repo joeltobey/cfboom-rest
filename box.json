@@ -1,6 +1,6 @@
 {
     "name":"<cfboom/> rest",
-    "version":"0.1.0",
+    "version":"0.1.1",
     "author":"Joel Tobey <joeltobey@gmail.com>",
     "slug":"cfboom-rest",
     "type":"modules",
@@ -10,7 +10,7 @@
         "type":"git",
         "url":"https://github.com/joeltobey/cfboom-rest"
     },
-    "location": "https://github.com/joeltobey/cfboom-rest/releases/download/v0.1.0/cfboom-rest-v0.1.0.zip",
+    "location": "https://github.com/joeltobey/cfboom-rest/releases/download/v0.1.1/cfboom-rest-v0.1.1.zip",
     "shortDescription":"The cfboom-rest module provides a wrapper facade to the RESTful requests/responses",
     "license":[
         {
@@ -32,7 +32,8 @@
         }
     ],
     "dependencies":{
-        "cfboom-lang":"1.0.0"
+        "cfboom-lang":"1.0.0",
+        "cfboom-gson":"0.9.0"
     },
     "ignore":[
         "**/.*",
