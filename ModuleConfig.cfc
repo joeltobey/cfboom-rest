@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Joel Tobey <joeltobey@gmail.com>
+ * Copyright 2017 Joel Tobey <joeltobey@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ component {
     this.author             = "Joel Tobey";
     this.webURL             = "https://github.com/joeltobey/cfboom-rest";
     this.description        = "The cfboom-rest module provides a wrapper facade to the RESTful requests/responses";
-    this.version            = "0.1.1";
+    this.version            = "0.1.2";
     // If true, looks for views in the parent first, if not found, then in the module. Else vice-versa
     this.viewParentLookup   = true;
     // If true, looks for layouts in the parent first, if not found, then in module. Else vice-versa
