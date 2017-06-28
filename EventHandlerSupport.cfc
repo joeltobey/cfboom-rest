@@ -31,14 +31,14 @@ component
       // start a resource timer
       var stime = getTickCount();
 
+      var contentTypeArray = listToArray( event.getHTTPHeader("Content-Type"), ";" );
+      if ( arrayContains(contentTypeArray, "application/json") ) {
+        arguments.rc["_content"] = arguments.event.getHTTPContent(true);
+      }
+
       validateRequest( argumentCollection=arguments );
 
       if (!prc.response.getError()) {
-      	var contentTypeArray = listToArray( event.getHTTPHeader("Content-Type"), ";" );
-        if ( arrayContains(contentTypeArray, "application/json") ) {
-          arguments.rc["_content"] = arguments.event.getHTTPContent(true);
-        }
-
         // prepare arguments for action call
         var args = {
           "event" = arguments.event,
@@ -140,13 +140,18 @@ component
 
   private void function validateRequest( event, targetAction, eventArguments, rc, prc ) {
     var messages = [];
-    var meta = getMetaData(arguments.targetAction);
+    var meta = getMetaData( targetAction );
     for (var param in meta.parameters) {
       if (structKeyExists(param, "validation-required")) {
         var requiredArray = listToArray( param['validation-required'] );
         if (param.name == "rc") {
           for (var requiredParam in requiredArray) {
-            if (!structKeyExists(rc, requiredParam))
+            var rcKeyArray = structKeyArray( rc );
+            var rcJsonContentKeyArray = [];
+            if (structKeyExists(rc, "_content")) {
+              rcJsonContentKeyArray = structKeyArray( rc._content );
+            }
+            if (!arrayFindNoCase(rcKeyArray, requiredParam) && !arrayFindNoCase(rcJsonContentKeyArray, requiredParam))
               arrayAppend(messages, "Missing required field '#requiredParam#'");
           }
         }
